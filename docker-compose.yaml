@@ -1,0 +1,104 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: agent_system
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./k8s/postgres/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_system"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  manager:
+    build:
+      context: .
+      dockerfile: services/manager/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent1234@postgres:5432/agent_system
+      LLM_PROVIDER: gemini
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: gemini-2.0-flash
+      WORKER_URL: http://worker:8001
+      EVALUATOR_URL: http://evaluator:8002
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      worker:
+        condition: service_healthy
+      evaluator:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/worker/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent1234@postgres:5432/agent_system
+      LLM_PROVIDER: gemini
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: gemini-2.0-flash
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8001/health\")'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  evaluator:
+    build:
+      context: .
+      dockerfile: services/evaluator/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent1234@postgres:5432/agent_system
+      LLM_PROVIDER: gemini
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: gemini-2.0-flash
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8002/health\")'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  optimizer:
+    build:
+      context: .
+      dockerfile: services/optimizer/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent:agent1234@postgres:5432/agent_system
+      LLM_PROVIDER: gemini
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: gemini-2.0-flash
+      OPTIMIZER_FAILURE_THRESHOLD: "3"
+      OPTIMIZER_LOOKBACK_MINUTES: "30"
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - optimizer
+
+volumes:
+  postgres_data:

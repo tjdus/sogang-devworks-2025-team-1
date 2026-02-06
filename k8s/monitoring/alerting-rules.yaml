@@ -1,0 +1,52 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: agent-alerting-rules
+  namespace: agent-system
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: agent-system.rules
+      rules:
+        - alert: LowEvaluationScore
+          expr: |
+            avg(agent_evaluation_score_sum / agent_evaluation_score_count) < 0.6
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Average evaluation score is below 0.6 for 5 minutes"
+            description: "The average evaluation score across all task types has dropped below the threshold."
+
+        - alert: HighErrorRate
+          expr: |
+            sum(rate(agent_requests_total{status="error"}[5m]))
+            /
+            sum(rate(agent_requests_total[5m]))
+            > 0.3
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Error rate exceeds 30%"
+            description: "More than 30% of requests are failing over the last 5 minutes."
+
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.95, rate(agent_request_duration_seconds_bucket{service="manager"}[5m])) > 30
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "P95 latency exceeds 30 seconds"
+            description: "The 95th percentile request latency for the manager service is above 30s."
+
+        - alert: OptimizationFailure
+          expr: |
+            increase(agent_optimization_runs_total{result="error"}[30m]) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: "Optimizer run failed"
+            description: "A prompt optimization run has failed in the last 30 minutes."
