@@ -1,0 +1,245 @@
+{
+  "easy_samples": [
+    {
+      "user_input": "Write a function to add two numbers",
+      "task_type": "code_generation",
+      "difficulty": "easy",
+      "expected_features": ["function definition", "return statement", "two parameters"]
+    },
+    {
+      "user_input": "Create a Python function that returns 'Hello World'",
+      "task_type": "code_generation",
+      "difficulty": "easy",
+      "expected_features": ["function", "string return"]
+    },
+    {
+      "user_input": "Write a function to check if a number is even",
+      "task_type": "code_generation",
+      "difficulty": "easy",
+      "expected_features": ["modulo operator", "boolean return"]
+    }
+  ],
+
+  "medium_samples": [
+    {
+      "user_input": "Implement a binary search algorithm in Python",
+      "task_type": "code_generation",
+      "difficulty": "medium",
+      "expected_features": ["while/recursion", "mid calculation", "array indexing", "edge cases"]
+    },
+    {
+      "user_input": "Create a REST API endpoint for user authentication with JWT tokens",
+      "task_type": "code_generation",
+      "difficulty": "medium",
+      "expected_features": ["FastAPI/Flask", "JWT handling", "password hashing", "error handling"]
+    },
+    {
+      "user_input": "Write a function to validate email addresses using regex",
+      "task_type": "code_generation",
+      "difficulty": "medium",
+      "expected_features": ["regex pattern", "validation logic", "error handling"]
+    },
+    {
+      "user_input": "Implement a LRU cache with get and put operations in O(1) time",
+      "task_type": "code_generation",
+      "difficulty": "medium",
+      "expected_features": ["OrderedDict or custom implementation", "O(1) operations", "capacity handling"]
+    }
+  ],
+
+  "hard_samples": [
+    {
+      "user_input": "Build a distributed task queue system with worker pools, priority queues, and failure retry mechanism. Include health monitoring and graceful shutdown.",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "expected_features": [
+        "queue implementation",
+        "worker pool management",
+        "priority handling",
+        "retry logic",
+        "health checks",
+        "graceful shutdown"
+      ]
+    },
+    {
+      "user_input": "Implement a multi-threaded web scraper that respects robots.txt, handles rate limiting, supports proxy rotation, and stores results in a database with connection pooling",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "expected_features": [
+        "threading/asyncio",
+        "robots.txt parser",
+        "rate limiter",
+        "proxy management",
+        "database connection pool",
+        "error handling"
+      ]
+    },
+    {
+      "user_input": "Create a real-time collaborative text editor backend with operational transformation, conflict resolution, and WebSocket communication",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "expected_features": [
+        "WebSocket server",
+        "operational transformation algorithm",
+        "conflict resolution",
+        "state synchronization",
+        "user session management"
+      ]
+    }
+  ],
+
+  "very_hard_samples": [
+    {
+      "user_input": "Design and implement a distributed transaction coordinator using two-phase commit protocol with timeout handling, deadlock detection, and automatic rollback. Support both ACID and eventual consistency modes.",
+      "task_type": "code_generation",
+      "difficulty": "very_hard",
+      "expected_features": [
+        "two-phase commit",
+        "distributed consensus",
+        "timeout handling",
+        "deadlock detection",
+        "transaction log",
+        "rollback mechanism",
+        "ACID guarantees"
+      ]
+    },
+    {
+      "user_input": "Build a self-optimizing database query planner that analyzes query patterns, maintains statistics, generates execution plans with cost estimation, and dynamically creates indexes based on workload",
+      "task_type": "code_generation",
+      "difficulty": "very_hard",
+      "expected_features": [
+        "query parser",
+        "statistics collector",
+        "cost-based optimizer",
+        "execution plan generator",
+        "index recommendation",
+        "adaptive optimization"
+      ]
+    }
+  ],
+
+  "edge_cases_and_ambiguous": [
+    {
+      "user_input": "코드 만들어줘",
+      "task_type": "code_generation",
+      "difficulty": "ambiguous",
+      "issue": "너무 모호함 - 어떤 코드를 원하는지 불명확"
+    },
+    {
+      "user_input": "Make it work",
+      "task_type": "code_generation",
+      "difficulty": "ambiguous",
+      "issue": "문맥 없음 - 무엇을 동작하게 해야 하는지 불명확"
+    },
+    {
+      "user_input": "Write Python code that does the thing with the stuff and makes it go fast using that algorithm everyone uses",
+      "task_type": "code_generation",
+      "difficulty": "vague",
+      "issue": "지시사항이 너무 애매모호함"
+    },
+    {
+      "user_input": "Create a function that takes a list and returns a dict but also maybe a tuple depending on the input unless it's empty then return None or maybe an empty list",
+      "task_type": "code_generation",
+      "difficulty": "contradictory",
+      "issue": "요구사항이 모순적이고 혼란스러움"
+    },
+    {
+      "user_input": "",
+      "task_type": "code_generation",
+      "difficulty": "invalid",
+      "issue": "빈 입력"
+    }
+  ],
+
+  "stress_test_samples": [
+    {
+      "user_input": "Implement a production-ready microservices architecture with API gateway, service discovery, circuit breaker, distributed tracing, centralized logging, metrics collection, auto-scaling, health checks, blue-green deployment support, and comprehensive error handling. Include authentication, authorization, rate limiting, caching, database connection pooling, message queuing, event sourcing, CQRS pattern, saga pattern for distributed transactions, and full OpenAPI documentation with examples.",
+      "task_type": "code_generation",
+      "difficulty": "extreme",
+      "issue": "요구사항이 너무 많고 복잡함 - 프롬프트가 모든 것을 처리하기 어려움"
+    },
+    {
+      "user_input": "Build a machine learning pipeline that ingests real-time streaming data from Kafka, performs feature engineering with PySpark, trains multiple models in parallel (XGBoost, LightGBM, Neural Network), does hyperparameter tuning with Optuna, validates with cross-validation, deploys the best model to production with A/B testing, monitors model drift, retrains automatically when performance degrades, and provides explainability with SHAP values",
+      "task_type": "code_generation",
+      "difficulty": "extreme",
+      "issue": "ML 파이프라인의 모든 단계를 요구 - 단일 프롬프트로 처리하기 매우 어려움"
+    }
+  ],
+
+  "security_and_best_practices_test": [
+    {
+      "user_input": "Create a secure password reset flow with email verification, rate limiting, and protection against timing attacks",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "security_concerns": [
+        "timing attacks",
+        "rate limiting",
+        "secure token generation",
+        "email verification"
+      ]
+    },
+    {
+      "user_input": "Implement a file upload handler that prevents directory traversal, validates file types, limits file size, scans for malware, and stores files securely",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "security_concerns": [
+        "path traversal",
+        "file validation",
+        "size limits",
+        "secure storage"
+      ]
+    }
+  ],
+
+  "performance_critical": [
+    {
+      "user_input": "Write a high-performance JSON parser that can handle 1GB+ files with streaming, minimal memory footprint, and support for JSONPath queries",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "performance_requirements": [
+        "streaming",
+        "memory efficiency",
+        "large file handling",
+        "query support"
+      ]
+    },
+    {
+      "user_input": "Implement a lock-free thread-safe queue that supports multiple producers and consumers with minimal contention",
+      "task_type": "code_generation",
+      "difficulty": "very_hard",
+      "performance_requirements": [
+        "lock-free",
+        "thread-safe",
+        "low contention",
+        "multiple producers/consumers"
+      ]
+    }
+  ],
+
+  "integration_challenges": [
+    {
+      "user_input": "Build a payment gateway integration that supports Stripe, PayPal, and Square with automatic failover, transaction logging, webhook handling, and reconciliation",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "integration_requirements": [
+        "multiple payment providers",
+        "failover logic",
+        "webhook handling",
+        "transaction logging",
+        "reconciliation"
+      ]
+    },
+    {
+      "user_input": "Create an ETL pipeline that extracts data from MySQL, PostgreSQL, and MongoDB, transforms it according to business rules, and loads it into a data warehouse with incremental updates and error recovery",
+      "task_type": "code_generation",
+      "difficulty": "hard",
+      "integration_requirements": [
+        "multiple data sources",
+        "transformation logic",
+        "incremental loading",
+        "error recovery"
+      ]
+    }
+  ]
+}
+

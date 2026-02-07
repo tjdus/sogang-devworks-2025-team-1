@@ -6,6 +6,8 @@ from prometheus_client import make_asgi_app
 from services.evaluator.app.routes.health import router as health_router
 from services.evaluator.app.routes.evaluate import router as evaluate_router
 
+from services.evaluator.app.routes.stats import router as stats_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +21,7 @@ app.mount("/metrics", metrics_app)
 
 app.include_router(health_router)
 app.include_router(evaluate_router, prefix="/api/v1")
+app.include_router(stats_router, prefix="/api/v1")
 
 
 if __name__ == "__main__":

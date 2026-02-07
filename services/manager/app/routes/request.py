@@ -3,6 +3,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from services.common.db import get_db
 from services.common.logging_utils import setup_logger
@@ -101,3 +102,74 @@ async def handle_request(
     finally:
         elapsed = time.time() - start
         REQUEST_LATENCY.labels(service="manager", endpoint="/api/v1/request").observe(elapsed)
+
+@router.get("/requests")
+async def get_all_requests(
+    limit: int = 100,
+    offset: int = 0,
+    task_type: str = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get all execution logs with pagination and optional filtering"""
+    from services.common.models import ExecutionLog
+
+    query = select(ExecutionLog)
+
+    # Filter by task_type if provided
+    if task_type:
+        query = query.where(ExecutionLog.task_type == task_type)
+
+    # Order by created_at descending (newest first)
+    query = query.order_by(ExecutionLog.created_at.desc())
+
+    # Apply pagination
+    query = query.limit(limit).offset(offset)
+
+    result = await db.execute(query)
+    logs = result.scalars().all()
+
+    # Convert to response format
+    return {
+        "total": len(logs),
+        "limit": limit,
+        "offset": offset,
+        "requests": [
+            {
+                "request_id": str(log.request_id),
+                "task_type": log.task_type,
+                "user_input": log.user_input,
+                "refined_input": log.refined_input,
+                "worker_output": log.worker_output,
+                "evaluation_score": log.evaluation_score,
+                "evaluation_passed": log.evaluation_passed,
+                "prompt_version": log.prompt_version,
+                "worker_latency_ms": log.worker_latency_ms,
+                "error_message": log.error_message,
+                "created_at": log.created_at.isoformat() if log.created_at else None,
+            }
+            for log in logs
+        ]
+    }
+
+
+@router.get("/request/{request_id}", response_model=RequestResponse)
+async def get_request_by_id(
+    request_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a specific request log by request_id"""
+    from services.common.models import ExecutionLog
+
+    result = await db.execute(select(ExecutionLog).where(ExecutionLog.request_id == request_id))
+    log = result.scalar_one_or_none()
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+
+    return RequestResponse(
+        request_id=log.request_id,
+        refined_input=log.refined_input,
+        worker_output=log.worker_output,
+        evaluation_score=log.evaluation_score,
+        evaluation_passed=log.evaluation_passed,
+        prompt_version=log.prompt_version,
+    )

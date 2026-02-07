@@ -1,0 +1,40 @@
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: services/manager/Dockerfile
+    volumes:
+      - ./scripts:/app/scripts
+      - ./tests:/app/tests
+      - ./results:/app/results
+      - ./services:/app/services
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://agent_user:agent_pass@postgres:5432/agent_db
+      - LLM_API_KEY=${LLM_API_KEY:-mock}
+      - LLM_MODEL=gemini-2.0-flash-exp
+    depends_on:
+      - postgres
+      - manager
+      - worker
+      - evaluator
+    networks:
+      - agent-network
+    command: |
+      bash -c "
+        echo '🧪 Starting comprehensive tests...'
+        python /app/scripts/test_comprehensive.py \
+          --manager-url http://manager:8000 \
+          --categories easy_samples medium_samples hard_samples \
+          --output /app/results/test_results.json \
+          --delay 1.5
+      "
+
+networks:
+  agent-network:
+    external: true
+  monitoring:
+    external: true
+    name: sogang-devworks-2025-team-1_monitoring
+  sogang-devworks-2025-team-1_default:
+    external: true
+

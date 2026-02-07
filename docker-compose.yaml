@@ -15,6 +15,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
+      - monitoring
 
   manager:
     build:
@@ -37,6 +40,9 @@ services:
         condition: service_healthy
       evaluator:
         condition: service_healthy
+    networks:
+      - default
+      - monitoring
 
   worker:
     build:
@@ -59,6 +65,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    networks:
+      - default
+      - monitoring
 
   evaluator:
     build:
@@ -81,6 +90,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    networks:
+      - default
+      - monitoring
 
   optimizer:
     build:
@@ -99,6 +111,15 @@ services:
         condition: service_healthy
     profiles:
       - optimizer
+    networks:
+      - default
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    driver: bridge
+  monitoring:
+    name: monitoring
+    driver: bridge

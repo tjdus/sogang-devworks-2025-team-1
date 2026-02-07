@@ -1,0 +1,1174 @@
+{
+  "id": null,
+  "uid": "evaluation-metrics",
+  "title": "멀티 에이전트 평가 지표 대시보드",
+  "tags": ["evaluation", "metrics", "multi-agent"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "📊 전체 평가 지표 개요",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "평균 평가 점수",
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_score_sum[5m])) / sum(rate(agent_evaluation_score_count[5m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 0.5, "color": "orange" },
+              { "value": 0.7, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "합격률",
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_pass_total{result=\"pass\"}[5m])) / sum(rate(agent_evaluation_pass_total[5m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "decimals": 2,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 0.6, "color": "yellow" },
+              { "value": 0.8, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "총 평가 건수 (5분)",
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(increase(agent_evaluation_pass_total[5m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "blue" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "gauge",
+      "title": "현재 프롬프트 버전",
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "agent_prompt_version{task_type=\"code_generation\"}",
+          "refId": "A",
+          "legendFormat": "{{task_type}}"
+        }
+      ],
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 20,
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "blue" },
+              { "value": 5, "color": "green" },
+              { "value": 10, "color": "yellow" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "평균 응답 시간",
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.5, sum(rate(agent_request_duration_seconds_bucket[5m])) by (le))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 1, "color": "yellow" },
+              { "value": 3, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "최적화 실행 횟수",
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(agent_optimization_runs_total)",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "row",
+      "title": "💾 데이터베이스 메트릭 (from DB Log Exporter)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "collapsed": false
+    },
+    {
+      "id": 29,
+      "type": "stat",
+      "title": "전체 실행 로그 수",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 7 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_log_total",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "blue" },
+              { "value": 100, "color": "green" },
+              { "value": 1000, "color": "yellow" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 30,
+      "type": "stat",
+      "title": "최근 24시간 실패 건수",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 7 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_recent_failures",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 5, "color": "yellow" },
+              { "value": 20, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "전체 로그 수 추이",
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 7 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_log_total",
+          "refId": "A",
+          "legendFormat": "Total Logs"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_recent_failures",
+          "refId": "B",
+          "legendFormat": "Recent Failures (24h)"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Recent Failures (24h)" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "red" }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "📈 평가 점수 트렌드",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
+      "collapsed": false
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "평가 점수 시계열 (Task Type별)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_score_sum[5m])) by (task_type) / sum(rate(agent_evaluation_score_count[5m])) by (task_type)",
+          "refId": "A",
+          "legendFormat": "{{task_type}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "transparent" },
+              { "value": 0.7, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "평가 점수 분포 (히스토그램)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_score_bucket[5m])) by (le)",
+          "refId": "A",
+          "legendFormat": "≤ {{le}}",
+          "format": "heatmap"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none"
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "합격/불합격 추이",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_pass_total{result=\"pass\"}[5m])) by (task_type)",
+          "refId": "A",
+          "legendFormat": "Pass - {{task_type}}"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_evaluation_pass_total{result=\"fail\"}[5m])) by (task_type)",
+          "refId": "B",
+          "legendFormat": "Fail - {{task_type}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "mean"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "/Pass.*/" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "green" }
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "/Fail.*/" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "red" }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": "piechart",
+      "title": "합격/불합격 비율",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 15 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(increase(agent_evaluation_pass_total{result=\"pass\"}[1h]))",
+          "refId": "A",
+          "legendFormat": "합격"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(increase(agent_evaluation_pass_total{result=\"fail\"}[1h]))",
+          "refId": "B",
+          "legendFormat": "불합격"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "displayLabels": ["percent"]
+      },
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "합격" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "green" }
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "불합격" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "red" }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "type": "bargauge",
+      "title": "Task Type별 평균 점수",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 15 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_task_type_avg_score",
+          "refId": "A",
+          "legendFormat": "{{task_type}}"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 0.5, "color": "orange" },
+              { "value": 0.7, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "row",
+      "title": "🔍 상세 평가 메트릭",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Rule Score vs LLM Score 비교",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT created_at as time, AVG((evaluation_detail->>'rule_score')::float) as rule_score, AVG((evaluation_detail->>'llm_score')::float) as llm_score FROM execution_logs WHERE evaluation_detail IS NOT NULL AND created_at > NOW() - INTERVAL '6 hours' GROUP BY time_bucket('5 minutes', created_at) ORDER BY time",
+          "refId": "A",
+          "format": "time_series"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "rule_score" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "blue" }
+              },
+              {
+                "id": "displayName",
+                "value": "Rule-based Score"
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "llm_score" },
+            "properties": [
+              {
+                "id": "color",
+                "value": { "mode": "fixed", "fixedColor": "purple" }
+              },
+              {
+                "id": "displayName",
+                "value": "LLM Score"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "응답 시간 (레이턴시) 추이",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.50, sum(rate(agent_request_duration_seconds_bucket[5m])) by (le, service))",
+          "refId": "A",
+          "legendFormat": "P50 - {{service}}"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum(rate(agent_request_duration_seconds_bucket[5m])) by (le, service))",
+          "refId": "B",
+          "legendFormat": "P95 - {{service}}"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, sum(rate(agent_request_duration_seconds_bucket[5m])) by (le, service))",
+          "refId": "C",
+          "legendFormat": "P99 - {{service}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "mean", "max"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "transparent" },
+              { "value": 1, "color": "yellow" },
+              { "value": 3, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "최근 1시간 실패율",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 32 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(app_db_recent_total - app_db_recent_passed) / app_db_recent_total",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "decimals": 2,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 0.2, "color": "yellow" },
+              { "value": 0.4, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "stat",
+      "title": "에러 발생 건수",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 32 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_recent_errors",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 5, "color": "yellow" },
+              { "value": 20, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "stat",
+      "title": "평균 Rule Score",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 32 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT AVG((evaluation_detail->>'rule_score')::float) as avg_rule_score FROM execution_logs WHERE evaluation_detail IS NOT NULL AND created_at > NOW() - INTERVAL '1 hour'",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 0.5, "color": "yellow" },
+              { "value": 0.7, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "평균 LLM Score",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 32 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT AVG((evaluation_detail->>'llm_score')::float) as avg_llm_score FROM execution_logs WHERE evaluation_detail IS NOT NULL AND created_at > NOW() - INTERVAL '1 hour'",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 0.5, "color": "yellow" },
+              { "value": 0.7, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "서비스별 요청 처리율",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(agent_requests_total[5m])) by (service, status)",
+          "refId": "A",
+          "legendFormat": "{{service}} - {{status}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 20,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "row",
+      "title": "📋 최근 실행 로그 및 상세 정보",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 },
+      "collapsed": false
+    },
+    {
+      "id": 23,
+      "type": "table",
+      "title": "최근 실행 로그 (최근 100건)",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 41 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT\n  id,\n  request_id,\n  task_type,\n  prompt_version,\n  CASE WHEN evaluation_passed THEN '✓ 합격' ELSE '✗ 불합격' END as status,\n  ROUND(evaluation_score::numeric, 3) as score,\n  ROUND((evaluation_detail->>'rule_score')::numeric, 3) as rule_score,\n  ROUND((evaluation_detail->>'llm_score')::numeric, 3) as llm_score,\n  worker_latency_ms as latency_ms,\n  LEFT(user_input, 50) || '...' as user_input_preview,\n  LEFT(worker_output, 50) || '...' as output_preview,\n  CASE WHEN error_message IS NOT NULL THEN '⚠️ 에러' ELSE '' END as error,\n  TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at\nFROM execution_logs\nORDER BY created_at DESC\nLIMIT 100;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "created_at",
+            "desc": true
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "filterable": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "status" },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "✓ 합격": {
+                        "color": "green",
+                        "index": 0
+                      },
+                      "✗ 불합격": {
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "score" },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": 0, "color": "red" },
+                    { "value": 0.5, "color": "orange" },
+                    { "value": 0.7, "color": "green" }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "latency_ms" },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": 0, "color": "green" },
+                    { "value": 1000, "color": "yellow" },
+                    { "value": 3000, "color": "red" }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 24,
+      "type": "table",
+      "title": "실패 케이스 분석 (Task Type별)",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 53 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_task_type_failed",
+          "refId": "A",
+          "legendFormat": "{{task_type}}",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_task_type_avg_score",
+          "refId": "B",
+          "legendFormat": "{{task_type}}",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "task_type": "Task Type",
+              "Value #A": "실패 건수",
+              "Value #B": "평균 점수"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "실패 건수" },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": 0, "color": "green" },
+                    { "value": 5, "color": "yellow" },
+                    { "value": 20, "color": "red" }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 25,
+      "type": "table",
+      "title": "최적화 이력",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 53 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT\n  id,\n  task_type,\n  before_prompt_version as before_v,\n  after_prompt_version as after_v,\n  ROUND(improvement_pct::numeric, 1) as improvement_pct,\n  triggered_by,\n  TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at\nFROM optimization_reports\nORDER BY created_at DESC\nLIMIT 20;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "improvement_pct" },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": 0, "color": "red" },
+                    { "value": 5, "color": "yellow" },
+                    { "value": 10, "color": "green" }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "type": "row",
+      "title": "🎯 프롬프트 버전 관리",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 63 },
+      "collapsed": false
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "프롬프트 버전별 평균 점수 추이",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 64 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "app_db_prompt_version_avg_score",
+          "refId": "A",
+          "legendFormat": "v{{prompt_version}} - {{task_type}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["mean", "lastNotNull"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "table",
+      "title": "활성 프롬프트 목록",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 64 },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgresql" },
+          "rawSql": "SELECT\n  task_type,\n  version,\n  LEFT(content, 100) || '...' as content_preview,\n  created_by,\n  TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at\nFROM prompts\nWHERE is_active = true\nORDER BY task_type, version DESC;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "task_type",
+        "type": "query",
+        "datasource": { "type": "postgres", "uid": "postgresql" },
+        "query": "SELECT DISTINCT task_type FROM execution_logs ORDER BY task_type",
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "time_range",
+        "type": "interval",
+        "query": "5m,10m,30m,1h,6h,24h",
+        "current": {
+          "text": "5m",
+          "value": "5m"
+        }
+      }
+    ]
+  }
+}
+
